@@ -1,0 +1,52 @@
+{
+  "intents": [
+        {
+         "tag": "greeting",
+         "patterns": ["Hi", "Hey", "Ho", "What's up", "How are you", "Is anyone there?", "Hello", "Good day", "Yo!", "Hey man", "What's going on", "What's new", "Nice to see you", "Good to see you", "Long time no see", "Pleased to meet you", "Hiya", "How do you do?"],
+         "responses": ["Hello, thanks for visiting", "Good to see you again", "Hi there, how can I help?"],
+         "context_set": ""
+        },
+        {
+         "tag": "goodbye",
+         "patterns": ["Bye", "Bye bye", "Ciao","See you later", "Goodbye", "See you", "Must leave", "Have a nice day", "See you soon", "Talk to you later", "I'm off", "Take care", "Catch you later", "I’ve got to get going", "Until next day"],
+         "responses": ["Happy to talk to you later!","Thanks for showing up!", "Bye! Looking forward to seeing you again soon!"]
+        },
+        {
+         "tag": "thanks",
+         "patterns": ["Thanks", "Thank you", "That's helpful", "Perfect, thank you so much", "Thanks a lot", "Thanks a bunch", "I really appreciate it", "That's very kind", "You rock", "I can't thank you enough", "Many thanks", "I'm so grateful", "How kind of you", "Thank you for your attention"],
+         "responses": ["Happy to help!", "Any time!", "My pleasure"]
+        },
+        {
+         "tag": "hours",
+         "patterns": ["What hours are you open?", "What are your hours?", "When are you open?", "Opening times?", "What time do you close?", "When do you have open?", "What are your opening times?", "When do you close?", "Closing times?", "Until what time are you open?", "What are your hours of operation?", "What are your store hours?", "How late are you open?", "Opening hours?"],
+         "responses": ["We're open every day 9am-9pm", "Our hours are 9am-9pm every day"]
+        },
+        {
+         "tag": "mopeds",
+         "patterns": ["Which mopeds do you have?", "What kinds of mopeds are there?", "What do you rent?", "Which motorbikes do you rent?", "Which autocyles do you have?", "What kinds of motorbikes are there?", "What can I rent?", "Which models do you rent?", "Which vehicles do you have?", "Which models can I hire?", "Which scooter do you rent?", "What motor scooters do you have?", "What kinds of scooters are there?"],
+         "responses": ["We rent Yamaha, Piaggio and Vespa mopeds", "We have Piaggio, Vespa and Yamaha mopeds"]
+        },
+        {
+         "tag": "payments",
+         "patterns": ["Do you take credit cards?", "Do you accept Mastercard?", "Are you cash only?", "Which credit cards do you accept", "What are the payment options?", "Payment options", "Do you accept VISA?", "Paying with cash", "Can I pay with cash?", "What are the forms of payment?", "How can I pay?", "What is the payment method?", "Which kinds of payment do you accept?", "What is the payment mode?"],
+         "responses": ["We accept VISA, Mastercard and AMEX", "We accept most major credit cards"]
+        },
+        {
+         "tag": "opentoday",
+         "patterns": ["Are you open today?", "When do you open today?", "At what times are you open today?", "What are you opening times today?", "Opening hours today", "Have you still open?", "Do you have currently open?", "Have you open at present-day?", "Are you currently open?", "Are you closed today?", "Is your store open today?", "Can I come immediately to your store?", "What times is the store open today?", "Opening hours today"],
+         "responses": ["We're open every day from 9am-9pm", "Our hours are 9am-9pm every day"]
+        },
+        {
+         "tag": "rental",
+         "patterns": ["Can we rent a moped?", "I'd like to rent a moped", "How does this work?", "I wanna rent a moped", "How can I rent a moped?", "Let me rent a mopded", "I wanna rent", "Give me a moped", "I wanna rent a vehicle", "Let's do this!", "Yes, I'm in", "I want that scooter"],
+         "responses": ["Are you looking to rent today or later this week?"],
+         "context_set": "rentalday"
+        },
+        {
+         "tag": "today",
+         "patterns": ["today", "rent today", "I want to rent today", "I wanna rent now", "present-day", "rent present-day", "Immediately", "Renting immediate", "I wanna rent directly", "Rent promptly", "Rent without delay", "Rent from now on", "Recent rent"],
+         "responses": ["For rentals today please call 1-800-MYMOPED", "Same-day rentals please call 1-800-MYMOPED"],
+         "context_filter": "rentalday"
+        }
+   ]
+}
