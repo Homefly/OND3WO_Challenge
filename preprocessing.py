@@ -73,6 +73,8 @@ def parse_training_data(path):
 def create_datasets(words, classes, documents):
     """ Create train- & testset
 
+    vectorizes dataset
+
     :param words: list of parsed words
     :param classes: list of parsed classes
     :param documents: list of parsed docs
@@ -117,6 +119,22 @@ def create_datasets(words, classes, documents):
         X, y, test_size=0.10, random_state=23, shuffle=True)
 
     return (X_train, y_train), (X_test, y_test)
+
+def additional_features(words, classes, documents):
+    """
+
+    :param words: list of parsed words
+    :param classes: list of parsed classes
+    :param documents: list of parsed docs
+    :return:    Word Count of the documents, 
+                Character Count of the documents 
+                Average Word Density of the documents
+                Puncutation Count in the Complete Essay
+                Upper Case Count in the Complete Essay 
+                Title Word Count in the Complete Essay 
+                Frequency distribution of Part of Speech Tags:(Noun Count, Verb Count, Adjective Count, Adverb Count, Pronoun Count)
+    """
+    
 
 
 def clean_up_sentence(sentence):

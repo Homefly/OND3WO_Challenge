@@ -15,6 +15,7 @@ class Preprocessing_Test_Cases(unittest.TestCase):
         data_path = os.path.join("data/", "data_intents.json")
         words, classes, documents = parse_training_data(data_path)
 
+        import ipdb; ipdb.set_trace()
         # Types
         self.assertEqual(list, type(words), "Incorrect type of words")
         self.assertEqual(list, type(classes), "Incorrect type of words")
@@ -36,10 +37,15 @@ class Preprocessing_Test_Cases(unittest.TestCase):
 
 
     def test_create_datasets(self):
+        """
+        tests for traing data creation?
+        """
+
         data_path = os.path.join("data/", "data_intents.json")
         words, classes, documents = parse_training_data(data_path)
         (X_train, y_train), (X_test, y_test) = create_datasets(words, classes,
                                                                documents)
+        import ipdb; ipdb.set_trace()
 
         # Types
         self.assertEqual(np.ndarray, type(X_train), "Incorrect type of X_train")
@@ -60,6 +66,25 @@ class Preprocessing_Test_Cases(unittest.TestCase):
         for label_vec in y_test:
             self.assertEqual(set([0,1]), set(label_vec),
                              "False val in test label vector")
+
+    def test_create_additional_features(self):
+        """
+        make sure computer calculated values match hand calculated values
+        """
+
+    """
+
+    :param words: list of parsed words
+    :param classes: list of parsed classes
+    :param documents: list of parsed docs
+    :return:    Word Count of the documents, 
+                Character Count of the documents 
+                Average Word Density of the documents
+                Puncutation Count in the Complete Essay
+                Upper Case Count in the Complete Essay 
+                Title Word Count in the Complete Essay 
+                Frequency distribution of Part of Speech Tags:(Noun Count, Verb Count, Adjective Count, Adverb Count, Pronoun Count)
+    """
 
 
     def test_clean_up_sentence(self):
