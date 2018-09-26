@@ -127,15 +127,24 @@ def additional_features(words, classes, documents):
     :param classes: list of parsed classes
     :param documents: list of parsed docs
     :return:    Word Count of the documents, 
-                Character Count of the documents 
-                Average Word Density of the documents
-                Puncutation Count in the Complete Essay
-                Upper Case Count in the Complete Essay 
-                Title Word Count in the Complete Essay 
+                Character Count of the documents,
+                Average Word Density of the documents,
+                Puncutation Count in the Complete Essay,
+                Upper Case Count in the Complete Essay,
+                Title Word Count in the Complete Essay,
                 Frequency distribution of Part of Speech Tags:(Noun Count, Verb Count, Adjective Count, Adverb Count, Pronoun Count)
     """
-    
 
+    import ipdb; ipdb.set_trace()
+    #Word Count
+    listOfAllPatterns = [pattern[0] for pattern in documents]
+    wordCount = [len(pattern[0]) for pattern in documents]
+    
+    #charCount ignore white space
+    patternCharCount =[]
+    for sentanceNum in range(len(listOfAllPatterns)):
+        eachWordCount = [len(word) for word in listOfAllPatterns[sentanceNum]]
+        patternCharCount.append(sum(eachWordCount))
 
 def clean_up_sentence(sentence):
     """ Split sentence into clean list of words
