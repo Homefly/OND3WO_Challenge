@@ -7,7 +7,7 @@ import numpy as np
 from numpy.testing import *
 
 from preprocessing import parse_training_data, create_datasets, \
-    clean_up_sentence, bow
+    clean_up_sentence, bow, additional_features
 
 
 class Preprocessing_Test_Cases(unittest.TestCase):
@@ -44,7 +44,6 @@ class Preprocessing_Test_Cases(unittest.TestCase):
         words, classes, documents = parse_training_data(data_path)
         (X_train, y_train), (X_test, y_test) = create_datasets(words, classes,
                                                                documents)
-        import ipdb; ipdb.set_trace()
 
         # Types
         self.assertEqual(np.ndarray, type(X_train), "Incorrect type of X_train")
@@ -70,8 +69,12 @@ class Preprocessing_Test_Cases(unittest.TestCase):
         """
         make sure computer calculated values match hand calculated values
         """
-    #Create Features
 
+    data_path = os.path.join("data/", "data_intents.json")
+    words, classes, documents = parse_training_data(data_path)
+
+    #Create Features
+    featuresDF = additional_features(words, classes, documents)
     #Word Count of the documents 
     #assert
     #Character Count of the documents 
