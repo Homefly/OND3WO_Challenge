@@ -5,6 +5,7 @@ Model training
 """
 
 import pickle
+import numpy as np
 
 from models import *
 

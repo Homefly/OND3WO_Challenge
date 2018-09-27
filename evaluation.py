@@ -11,6 +11,8 @@ import pandas as pd
 from utils.tensorboard_utils import make_callbacks
 from utils.evaluation_utils import eval_clf
 
+from models import feedforward_models
+
 
 def evaluate_models(trainset, testset, model_names, trained_models):
     """ Evaluate models and plot test summary
@@ -44,13 +46,13 @@ def evaluate_models(trainset, testset, model_names, trained_models):
 
         eval_results[name] = eval_clf(y_test, y_pred, train_acc)
 
-    eval = pd.DataFrame.from_dict(eval_results, orient="index",
+    evalDF = pd.DataFrame.from_dict(eval_results, orient="index",
                                   columns=["Test_acc", "Precision",
                                            "Recall", "FBeta",
                                            "Train_acc"]).sort_values(
         ["Test_acc", "Train_acc"], ascending=False)
-    eval.to_csv("model/test_summary.csv")
-    print(eval)
+    evalDF.to_csv("model/test_summary.csv")
+    print(evalDF)
 
 
 class ModelExplorer:
@@ -105,7 +107,10 @@ class ModelExplorer:
             for p, s in zip(params, all_scores):
                 rows.append((row(k, s, p)))
 
-        df = pd.concat(rows, axis=1, sort=False).T.sort_values([sort_by],
+        #df = pd.concat(rows, axis=1, sort=False).T.sort_values([sort_by],
+        #                                              ascending=False)
+
+        df = pd.concat(rows, axis=1).T.sort_values([sort_by],
                                                       ascending=False)
 
         columns = ["estimator", "mean_score", "max_score"]

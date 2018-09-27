@@ -1,6 +1,8 @@
 """ models
 """
 
+import numpy as np
+
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM, Bidirectional
 from keras import optimizers
@@ -12,7 +14,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
 from mlxtend.classifier import StackingCVClassifier
 
-from evaluation import *
+#from evaluation import *
 
 
 def create_ffNN(lr=0.005, decay=0.001):

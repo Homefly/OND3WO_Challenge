@@ -6,7 +6,7 @@ Conversation logic and helpers of Chatbot
 
 import os, sys, json, random
 import numpy as np
-from preprocessing import parse_training_data, bow
+from preprocessing import Preprocessing #parse_training_data, bow
 
 
 def classify(sentence, model):
@@ -18,10 +18,10 @@ def classify(sentence, model):
     """
     ERROR_THRESHOLD = 0.0001
     data_path = os.path.join("data/", "data_intents.json")
-    words, classes, documents = parse_training_data(data_path)
+    words, classes, documents = Preprocessing.parse_training_data(data_path)
 
     # generate probabilities from the model
-    results = model.predict(np.array([bow(sentence, words)]))[0]
+    results = model.predict(np.array([Preprocessing.bow(sentence, words)]))[0]
     # filter out predictions below a threshold
     results = [[i,r] for i,r in enumerate(results) if r>ERROR_THRESHOLD]
     # sort by strength of probability

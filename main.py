@@ -7,7 +7,7 @@ Chatbot main logic
 import os
 from keras import backend
 
-from preprocessing import parse_training_data, create_datasets
+from preprocessing import Preprocessing #parse_training_data, create_datasets
 from models import create_ffNN
 from training import train_best_models
 from evaluation import explore_models, evaluate_models
@@ -40,10 +40,11 @@ def main():
 
     # Parse and clean training data
     data_path = os.path.join("data/", "data_intents.json")
-    words, classes, documents = parse_training_data(data_path)
-    (X_train, y_train), (X_test, y_test) = create_datasets(words, classes,
+    words, classes, documents = Preprocessing.parse_training_data(data_path)
+    (X_train, y_train), (X_test, y_test) = Preprocessing.create_datasets(words, classes,
                                                            documents)
 
+    #import ipdb; ipdb.set_trace()
     # Model exploration
     explore_models((X_train, y_train))
 
