@@ -136,15 +136,48 @@ def additional_features(words, classes, documents):
     """
 
     import ipdb; ipdb.set_trace()
-    #Word Count
-    listOfAllPatterns = [pattern[0] for pattern in documents]
-    wordCount = [len(pattern[0]) for pattern in documents]
+    ##Word Count
+    #listOfAllPatterns = [pattern[0] for pattern in documents]
+    #wordCount = [len(pattern[0]) for pattern in documents]
+    #
+    ##charCount ignore white space
+    #patternCharCount =[]
+    #for sentanceNum in range(len(listOfAllPatterns)):
+    #    eachWordCount = [len(word) for word in listOfAllPatterns[sentanceNum]]
+    #    patternCharCount.append(sum(eachWordCount))
+    trainDF['char_count'] = trainDF['text'].apply(len)
+    trainDF['word_count'] = trainDF['text'].apply(lambda x: len(x.split()))
+    trainDF['word_density'] = trainDF['char_count'] / (trainDF['word_count']+1)
+    trainDF['punctuation_count'] = trainDF['text'].apply(lambda x: len("".join(_ for _ in x if _ in string.punctuation)))
+    trainDF['title_word_count'] = trainDF['text'].apply(lambda x: len([wrd for wrd in x.split() if wrd.istitle()]))
+    trainDF['upper_case_word_count'] = trainDF['text'].apply(lambda x: len([wrd for wrd in x.split() if wrd.isupper()]))
     
-    #charCount ignore white space
-    patternCharCount =[]
-    for sentanceNum in range(len(listOfAllPatterns)):
-        eachWordCount = [len(word) for word in listOfAllPatterns[sentanceNum]]
-        patternCharCount.append(sum(eachWordCount))
+    pos_family = {
+        'noun' : ['NN','NNS','NNP','NNPS'],
+        'pron' : ['PRP','PRP$','WP','WP$'],
+        'verb' : ['VB','VBD','VBG','VBN','VBP','VBZ'],
+        'adj' :  ['JJ','JJR','JJS'],
+        'adv' : ['RB','RBR','RBS','WRB']
+    }
+
+    # function to check and get the part of speech tag count of a words in a given sentence
+    def check_pos_tag(x, flag):
+        cnt = 0
+        try:
+            wiki = textblob.TextBlob(x)
+            for tup in wiki.tags:
+                ppo = list(tup)[1]
+                if ppo in pos_family[flag]:
+                    cnt += 1
+        except:
+            pass
+        return cnt
+    
+    trainDF['noun_count'] = trainDF['text'].apply(lambda x: check_pos_tag(x, 'noun'))
+    trainDF['verb_count'] = trainDF['text'].apply(lambda x: check_pos_tag(x, 'verb'))
+    trainDF['adj_count'] = trainDF['text'].apply(lambda x: check_pos_tag(x, 'adj'))
+    trainDF['adv_count'] = trainDF['text'].apply(lambda x: check_pos_tag(x, 'adv'))
+    trainDF['pron_count'] = trainDF['text'].apply(lambda x: check_pos_tag(x, 'pron'))
 
 def clean_up_sentence(sentence):
     """ Split sentence into clean list of words
