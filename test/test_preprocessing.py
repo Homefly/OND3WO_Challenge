@@ -1,19 +1,23 @@
 """ test_preprocessing
 
 """
-
+#Standard Library
 import unittest, os
+
+#Third Party
 import numpy as np
 from numpy.testing import *
 
-from preprocessing import parse_training_data, create_datasets, \
-    clean_up_sentence, bow, additional_features
+#First Party
+from preprocessing import Preprocessing
 
+#parse_training_data, create_datasets, \
+#    clean_up_sentence, bow, additional_features
 
 class Preprocessing_Test_Cases(unittest.TestCase):
     def test_parse_training_data(self):
         data_path = os.path.join("data/", "data_intents.json")
-        words, classes, documents = parse_training_data(data_path)
+        words, classes, documents = Preprocessing.parse_training_data(data_path)
 
         # Types
         self.assertEqual(list, type(words), "Incorrect type of words")
@@ -41,8 +45,8 @@ class Preprocessing_Test_Cases(unittest.TestCase):
         """
 
         data_path = os.path.join("data/", "data_intents.json")
-        words, classes, documents = parse_training_data(data_path)
-        (X_train, y_train), (X_test, y_test) = create_datasets(words, classes,
+        words, classes, documents = Preprocessing.parse_training_data(data_path)
+        (X_train, y_train), (X_test, y_test) = Preprocessing.create_datasets(words, classes,
                                                                documents)
 
         # Types
@@ -70,11 +74,15 @@ class Preprocessing_Test_Cases(unittest.TestCase):
         make sure computer calculated values match hand calculated values
         """
 
-    data_path = os.path.join("data/", "data_intents.json")
-    words, classes, documents = parse_training_data(data_path)
+        data_path = os.path.join("data/", "data_intents.json")
+        words, classes, documents = Preprocessing.parse_training_data(data_path)
 
-    #Create Features
-    featuresDF = additional_features(words, classes, documents)
+        #Create Features
+        featuresDF = Preprocessing.additional_features(words, classes, documents)
+
+        #Size
+        self.assertEqual((127, 12), featuresDF.shape, "Incorrect shape of FeaturesDF")
+ 
     #Word Count of the documents 
     #assert
     #Character Count of the documents 
@@ -86,7 +94,7 @@ class Preprocessing_Test_Cases(unittest.TestCase):
 
     def test_clean_up_sentence(self):
         mock_sentence = "This is a mock sentence"
-        w_list = clean_up_sentence(mock_sentence)
+        w_list = Preprocessing.clean_up_sentence(mock_sentence)
 
         self.assertEqual(3, len(w_list),
                          "Incorrect number of words in word list")
@@ -95,7 +103,7 @@ class Preprocessing_Test_Cases(unittest.TestCase):
     def test_bow(self):
         mock_sentence = "Bye, bye"
         mock_words = ["bye", "donkey"]
-        bow_list = bow(mock_sentence, mock_words)
+        bow_list = Preprocessing.bow(mock_sentence, mock_words)
 
         assert_array_equal(bow_list, np.array([2, 0]),
                            "False BoW implementation")
