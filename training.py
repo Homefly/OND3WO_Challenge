@@ -6,8 +6,8 @@ Model training
 
 import pickle
 import numpy as np
-
 from keras.wrappers.scikit_learn import KerasClassifier
+
 from models import create_ffNN, best_ensemble, stacking, modelInputWidth
 
 

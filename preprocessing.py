@@ -20,7 +20,7 @@ class Preprocessing(object):
         """ Split sentence into clean list of words
 
         :param sentence: pattern
-        :return: [word]
+        :return: [word, word,...]
         """
         # tokenize the pattern
         sentence_words = nltk.word_tokenize(sentence)
@@ -29,7 +29,7 @@ class Preprocessing(object):
         return sentence_words
 
     def _check_pos_tag(sent, flag):
-        """ function to check and get the part of speech tag count of a words in a given sentence
+        """ Function to check and get the part of speech tag count of a words in a given sentence
         
         :param sent: sentance
         :param flag: part of speach 
@@ -113,9 +113,15 @@ class Preprocessing(object):
         return words, classes, documents
 
     def create_BOW_array(words, classes, documents):
-        #creates bag of words array
+        """ Creates bag of words vectors and tags
+
+        :param word: words used for BOW vector
+        :param classes: tags, catagories of patterns
+        :param documents: parced + stemed sentances with tags
+        :return: BOW vector with tags
+        """
         # create our training data
-        training = []
+        trainingBOW = []
         # create an empty array for our output
         output_empty = [0] * len(classes)
 
@@ -136,8 +142,8 @@ class Preprocessing(object):
             # class index as label
             target_num = doc[1]
 
-            training.append([bag, target_num])
-        return training
+            trainingBOW.append([bag, target_num])
+        return trainingBOW
 
     @classmethod
     def create_datasets(cls, words, classes, documents):
@@ -148,24 +154,25 @@ class Preprocessing(object):
         :param documents: list of parsed docs
         :return: Trainset, Testset
         """
+
+        # get BOW Vecotrs
         trainingBOW = cls.create_BOW_array(words, classes, documents)
         tags = [tag[1] for tag in trainingBOW]
         trainingBOW = [vec[0] for vec in trainingBOW]
 
         trainingAdv = cls.create_advanced_feat_training_data(classes, documents)
 
+        #BOW vector combined with advanced attributes
         trainingTot = [x + y for x, y in zip(trainingBOW, trainingAdv)]
         trainingTot = [*zip(trainingTot, tags)]
 
-        #import ipdb; ipdb.set_trace()
         # shuffle our features and turn into np.array
         random.shuffle(trainingTot)
         trainingTot = np.array(trainingTot)
 
         # create train and test lists, dirty hack because of keras input specifics
         X = np.vstack(trainingTot[:, 0])
-        #X = X[:, 0:105]
-        #import ipdb; ipdb.set_trace()
+        #X = X[:, 0:105] #This gives BOW elements of vectro only
         y = trainingTot[:, 1]
         y = pd.get_dummies(y)
         y = y.values.argmax(1)
@@ -178,8 +185,11 @@ class Preprocessing(object):
         return (X_train, y_train), (X_test, y_test)
 
     def create_advanced_feat_training_data(classes, documents):
-        """puts advanced features into list of lists
+        """ Creates advanced feature vectors
 
+        :param classes: tags, catagories of patterns
+        :param documents: list of parsed docs
+        :return: list of advanced feature vectors
         """
         advFeatDF = Preprocessing.additional_features(classes, documents)
 
@@ -198,16 +208,16 @@ class Preprocessing(object):
 
     @classmethod
     def additional_features(cls, classes, documents):
-        """
+        """ Calculates advanced feature values
         :param classes: list of parsed classes
         :param documents: list of parsed docs
-        :return:    Word Count of the documents, 
-                    Character Count of the documents,
-                    Average Word Density of the documents,
-                    Puncutation Count in the Complete Essay,
-                    Upper Case Count in the Complete Essay,
-                    Title Word Count in the Complete Essay,
-                    Frequency distribution of Part of Speech Tags:(Noun Count, Verb Count, Adjective Count, Adverb Count, Pronoun Count
+        :return: Dataframe with: Word Count, 
+                                Character Count,
+                                Average Word Density,
+                                Puncutation Count,
+                                Upper Case Count,
+                                Title Word Count,
+                                Part of Speech Freq
         """
         
         trainDF = pd.DataFrame()
@@ -243,7 +253,7 @@ class Preprocessing(object):
         :param sentence: pattern
         :param words: words list
         :param show_details:
-        :return:
+        :return: single BoW vec
         """
         # tokenize the pattern
         sentence_words = cls.clean_up_sentence(sentence)

@@ -109,9 +109,6 @@ class ModelExplorer:
             for p, s in zip(params, all_scores):
                 rows.append((row(k, s, p)))
 
-        #df = pd.concat(rows, axis=1, sort=False).T.sort_values([sort_by],
-        #                                              ascending=False)
-
         df = pd.concat(rows, axis=1).T.sort_values([sort_by],
                                                       ascending=False)
 
