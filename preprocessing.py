@@ -164,6 +164,8 @@ class Preprocessing(object):
 
         # create train and test lists, dirty hack because of keras input specifics
         X = np.vstack(trainingTot[:, 0])
+        X = X[:, 0:105]
+        #import ipdb; ipdb.set_trace()
         y = trainingTot[:, 1]
         y = pd.get_dummies(y)
         y = y.values.argmax(1)

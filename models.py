@@ -15,7 +15,7 @@ from sklearn.linear_model import LogisticRegression
 from mlxtend.classifier import StackingCVClassifier
 
 #from evaluation import *
-modelInputWidth = 116
+modelInputWidth = 105
 
 def create_ffNN(lr=0.005, decay=0.001):
     """ Create Feed-Forward NN, from template
