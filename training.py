@@ -30,7 +30,6 @@ def train_best_models(trainset):
     model_names.append("ffNN")
     model_list.append(ffNN)
 
-
     # Ensemble
     for (name, model) in best_ensemble():
        clf = model.fit(X_train, y_train_ensemble)

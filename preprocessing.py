@@ -16,7 +16,6 @@ from textblob import TextBlob
 
 class Preprocessing(object):
     
-    @classmethod
     def clean_up_sentence(self, sentence):
         """ Split sentence into clean list of words
 
@@ -29,9 +28,23 @@ class Preprocessing(object):
         sentence_words =self._clean_sequence(sentence_words)
         return sentence_words
 
-    # function to check and get the part of speech tag count of a words in a given sentence
-    @staticmethod
     def _check_pos_tag(sent, flag):
+        """ function to check and get the part of speech tag count of a words in a given sentence
+        
+        :param sent: sentance
+        :param flag: part of speach 
+        :return: count of words in a specific part of speach
+        """
+
+        #Parts of Speach
+        pos_family = {
+            'noun' : ['NN','NNS','NNP','NNPS'],
+            'pron' : ['PRP','PRP$','WP','WP$'],
+            'verb' : ['VB','VBD','VBG','VBN','VBP','VBZ'],
+            'adj' :  ['JJ','JJR','JJS'],
+            'adv' : ['RB','RBR','RBS','WRB']
+        }
+
         cnt = 0
         for word in sent:
             try:
@@ -44,7 +57,6 @@ class Preprocessing(object):
                 pass
         return cnt
 
-    @staticmethod
     def _clean_sequence(seq):
         """ Stemming, remove stopwords and punctuation from input sequence
 
@@ -61,7 +73,7 @@ class Preprocessing(object):
         return cleaned_seq
 
     @classmethod
-    def parse_training_data(self, path):
+    def parse_training_data(cls, path):
         """ Parse training data and create dictonary for app
 
         :param path: path to training data
@@ -92,25 +104,16 @@ class Preprocessing(object):
                     classes.append(intent["tag"])
 
         # stem and lower each word and remove duplicates
-        words = self._clean_sequence(words)
+        words = cls._clean_sequence(words)
         words = sorted(list(set(words)))
 
         # remove duplicates
         classes = sorted(list(set(classes)))
 
         return words, classes, documents
-    
-    @classmethod
-    def create_datasets(self, words, classes, documents):
-        """ Create train- & testset
 
-        vectorizes dataset
-
-        :param words: list of parsed words
-        :param classes: list of parsed classes
-        :param documents: list of parsed docs
-        :return: Trainset, Testset
-        """
+    def create_BOW_array(words, classes, documents):
+        #creates bag of words array
         # create our training data
         training = []
         # create an empty array for our output
@@ -123,7 +126,7 @@ class Preprocessing(object):
             # list of tokenized words for the pattern
             pattern_words = doc[0]
             # stem each word
-            pattern_words = self._clean_sequence(pattern_words)
+            pattern_words = Preprocessing._clean_sequence(pattern_words)
             # create our bag of words array - BUGFIX
             for pw in pattern_words:
                 for i, w in enumerate(words):
@@ -134,6 +137,22 @@ class Preprocessing(object):
             target_num = doc[1]
 
             training.append([bag, target_num])
+        return training
+
+    @classmethod
+    def create_datasets(cls, words, classes, documents):
+        """ Create train- & testset
+
+        :param words: list of parsed words
+        :param classes: list of parsed classes
+        :param documents: list of parsed docs
+        :return: Trainset, Testset
+        """
+        trainingBOW = cls.create_BOW_array(words, classes, documents)
+ 
+        advFeatArray = cls.create_advanced_feat_training_data(classes, documents)
+
+        #import ipdb; ipdb.set_trace()
 
         # shuffle our features and turn into np.array
         random.shuffle(training)
@@ -150,11 +169,28 @@ class Preprocessing(object):
             X, y, test_size=0.10, random_state=23, shuffle=True)
 
         return (X_train, y_train), (X_test, y_test)
-    
+
+    def create_advanced_feat_training_data(classes, documents):
+        advFeatDF = Preprocessing.additional_features(classes, documents)
+
+        advFeatures = ['char_count', 'word_count', 'word_density',
+       'punctuation_count', 'title_word_count', 'uppercase_word_count',
+       'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count']        
+        
+        advFeatArrayNorm = pd.DataFrame()
+        for feature in advFeatures:
+            advFeatArrayNorm[feature] = Preprocessing.normalize_DF_column(advFeatDF, feature)
+        import ipdb; ipdb.set_trace()
+
+        #advFeatArrayNorm =  (advFeatArray['char_count'] - advFeatDF['char_count'].min())/(advFeatDF['char_count'].max() - advFeatArray['char_count'].min())
+        pass
+
+    def normalize_DF_column(df, column):
+        return (df[column] - df[column].min())/(df[column].max() - df[column].min())
+
     @classmethod
-    def additional_features(cls, words, classes, documents):
+    def additional_features(cls, classes, documents):
         """
-        :param words: list of parsed words
         :param classes: list of parsed classes
         :param documents: list of parsed docs
         :return:    Word Count of the documents, 
@@ -167,7 +203,8 @@ class Preprocessing(object):
         """
         
         trainDF = pd.DataFrame()
-        trainDF['patterns'] = listOfAllPatterns = [pattern[0] for pattern in documents]
+        trainDF['patterns'] = [pattern[0] for pattern in documents]
+        trainDF['tag']      = [tag[1] for tag in documents]
 
         #Counts:do not include white space charcters
         trainDF['char_count'] = trainDF['patterns'].apply(lambda x: sum([*map(len, x)]))
@@ -183,16 +220,7 @@ class Preprocessing(object):
 
         #Uppercase word count: number of words in all upper case 
         trainDF['uppercase_word_count'] = trainDF['patterns'].apply(lambda x: sum([*map(str.isupper, x)]))
-        
-        #Parts of Speach
-        pos_family = {
-            'noun' : ['NN','NNS','NNP','NNPS'],
-            'pron' : ['PRP','PRP$','WP','WP$'],
-            'verb' : ['VB','VBD','VBG','VBN','VBP','VBZ'],
-            'adj' :  ['JJ','JJR','JJS'],
-            'adv' : ['RB','RBR','RBS','WRB']
-        }
-        
+
         trainDF['noun_count'] = trainDF['patterns'].apply(lambda x:cls._check_pos_tag(x, 'noun'))
         trainDF['verb_count'] = trainDF['patterns'].apply(lambda x:cls._check_pos_tag(x, 'verb'))
         trainDF['adj_count']  = trainDF['patterns'].apply(lambda x:cls._check_pos_tag(x, 'adj' ))
@@ -201,7 +229,6 @@ class Preprocessing(object):
         
         return trainDF
 
-    @classmethod
     def bow(cls, sentence, words, show_details=False):
         """ Creates BoW
 
