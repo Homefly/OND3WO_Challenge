@@ -15,7 +15,7 @@ from sklearn.linear_model import LogisticRegression
 from mlxtend.classifier import StackingCVClassifier
 
 #from evaluation import *
-
+modelInputWidth = 116
 
 def create_ffNN(lr=0.005, decay=0.001):
     """ Create Feed-Forward NN, from template
@@ -25,7 +25,7 @@ def create_ffNN(lr=0.005, decay=0.001):
     :return: model
     """
     model = Sequential()
-    model.add(Dense(100, activation="relu", input_dim=105))
+    model.add(Dense(100, activation="relu", input_dim=modelInputWidth))
     model.add(Dropout(0.2))
     model.add(Dense(50, activation="relu"))
     model.add(Dropout(0.2))
@@ -48,7 +48,7 @@ def create_LSTM(optimizer="adam"):
     :return: model
     """
     model = Sequential()
-    model.add(LSTM(64, input_shape=(1, 105)))
+    model.add(LSTM(64, input_shape=(1, modelInputWidth)))
     model.add(Dropout(0.1))
     model.add(Dense(9, activation="softmax"))
 
@@ -68,7 +68,7 @@ def create_biLSTM(optimizer="adam"):
     :return: model
     """
     model = Sequential()
-    model.add(Bidirectional(LSTM(64, input_shape=(1, 105))))
+    model.add(Bidirectional(LSTM(64, input_shape=(1, modelInputWidth))))
     model.add(Dropout(0.1))
     model.add(Dense(9, activation="softmax"))
 

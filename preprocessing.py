@@ -149,18 +149,22 @@ class Preprocessing(object):
         :return: Trainset, Testset
         """
         trainingBOW = cls.create_BOW_array(words, classes, documents)
- 
-        advFeatArray = cls.create_advanced_feat_training_data(classes, documents)
+        tags = [tag[1] for tag in trainingBOW]
+        trainingBOW = [vec[0] for vec in trainingBOW]
+
+        trainingAdv = cls.create_advanced_feat_training_data(classes, documents)
+
+        trainingTot = [x + y for x, y in zip(trainingBOW, trainingAdv)]
+        trainingTot = [*zip(trainingTot, tags)]
 
         #import ipdb; ipdb.set_trace()
-
         # shuffle our features and turn into np.array
-        random.shuffle(training)
-        training = np.array(training)
+        random.shuffle(trainingTot)
+        trainingTot = np.array(trainingTot)
 
         # create train and test lists, dirty hack because of keras input specifics
-        X = np.vstack(training[:, 0])
-        y = training[:, 1]
+        X = np.vstack(trainingTot[:, 0])
+        y = trainingTot[:, 1]
         y = pd.get_dummies(y)
         y = y.values.argmax(1)
         y = to_categorical(y, len(classes))
@@ -168,9 +172,13 @@ class Preprocessing(object):
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.10, random_state=23, shuffle=True)
 
+        #import ipdb; ipdb.set_trace()
         return (X_train, y_train), (X_test, y_test)
 
     def create_advanced_feat_training_data(classes, documents):
+        """puts advanced features into list of lists
+
+        """
         advFeatDF = Preprocessing.additional_features(classes, documents)
 
         advFeatures = ['char_count', 'word_count', 'word_density',
@@ -180,10 +188,8 @@ class Preprocessing(object):
         advFeatArrayNorm = pd.DataFrame()
         for feature in advFeatures:
             advFeatArrayNorm[feature] = Preprocessing.normalize_DF_column(advFeatDF, feature)
-        import ipdb; ipdb.set_trace()
 
-        #advFeatArrayNorm =  (advFeatArray['char_count'] - advFeatDF['char_count'].min())/(advFeatDF['char_count'].max() - advFeatArray['char_count'].min())
-        pass
+        return advFeatArrayNorm.values.tolist()
 
     def normalize_DF_column(df, column):
         return (df[column] - df[column].min())/(df[column].max() - df[column].min())

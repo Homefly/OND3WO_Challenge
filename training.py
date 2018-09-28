@@ -7,7 +7,8 @@ Model training
 import pickle
 import numpy as np
 
-from models import *
+from keras.wrappers.scikit_learn import KerasClassifier
+from models import create_ffNN, best_ensemble, stacking, modelInputWidth
 
 
 def train_best_models(trainset):
@@ -20,7 +21,7 @@ def train_best_models(trainset):
     model_names, model_list = [], []
 
     # Input reshaping
-    X_train_rec = X_train.reshape(114, 1, 105)
+    X_train_rec = X_train.reshape(114, 1, modelInputWidth)
     y_train_ensemble = np.argmax(y_train, axis=1)
 
     # ffNN

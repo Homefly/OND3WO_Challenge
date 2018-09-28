@@ -44,7 +44,6 @@ def main():
     (X_train, y_train), (X_test, y_test) = Preprocessing.create_datasets(words, classes,
                                                            documents)
 
-    #import ipdb; ipdb.set_trace()
     # Model exploration
     explore_models((X_train, y_train))
 
