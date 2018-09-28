@@ -21,7 +21,8 @@ def classify(sentence, model):
     words, classes, documents = Preprocessing.parse_training_data(data_path)
 
     # generate probabilities from the model
-    results = model.predict(np.array([Preprocessing.bow(sentence, words)]))[0]
+    #results = model.predict(np.array([Preprocessing.bow(sentence, words)]))[0]
+    results = model.predict(np.array([Preprocessing.advFeat_and_BOW(sentence, words)]))[0]
     # filter out predictions below a threshold
     results = [[i,r] for i,r in enumerate(results) if r>ERROR_THRESHOLD]
     # sort by strength of probability

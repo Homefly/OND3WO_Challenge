@@ -13,10 +13,14 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from keras.utils import to_categorical
 from textblob import TextBlob
+import os
 
 class Preprocessing(object):
-    
-    def clean_up_sentence(self, sentence):
+
+    def __init__(self):
+        self.x = 'Hello'
+
+    def clean_up_sentence(sentence):
         """ Split sentence into clean list of words
 
         :param sentence: pattern
@@ -25,7 +29,7 @@ class Preprocessing(object):
         # tokenize the pattern
         sentence_words = nltk.word_tokenize(sentence)
         # stem each word
-        sentence_words =self._clean_sequence(sentence_words)
+        sentence_words = Preprocessing._clean_sequence(sentence_words)
         return sentence_words
 
     def _check_pos_tag(sent, flag):
@@ -181,7 +185,6 @@ class Preprocessing(object):
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.10, random_state=23, shuffle=True)
 
-        #import ipdb; ipdb.set_trace()
         return (X_train, y_train), (X_test, y_test)
 
     def create_advanced_feat_training_data(classes, documents):
@@ -194,12 +197,16 @@ class Preprocessing(object):
         advFeatDF = Preprocessing.additional_features(classes, documents)
 
         advFeatures = ['char_count', 'word_count', 'word_density',
-       'punctuation_count', 'title_word_count', 'uppercase_word_count',
-       'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count']        
+        'punctuation_count', 'title_word_count', 'uppercase_word_count',
+        'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count']        
         
         advFeatArrayNorm = pd.DataFrame()
         for feature in advFeatures:
             advFeatArrayNorm[feature] = Preprocessing.normalize_DF_column(advFeatDF, feature)
+
+        #remove later
+        #advFeatDF = advFeatDF.drop('patterns', 1)
+        #advFeatDF = advFeatDF.drop('tag', 1)
 
         return advFeatArrayNorm.values.tolist()
 
@@ -247,7 +254,7 @@ class Preprocessing(object):
         
         return trainDF
 
-    def bow(cls, sentence, words, show_details=False):
+    def bow(sentence, words, show_details=False):
         """ Creates BoW
 
         :param sentence: pattern
@@ -256,7 +263,7 @@ class Preprocessing(object):
         :return: single BoW vec
         """
         # tokenize the pattern
-        sentence_words = cls.clean_up_sentence(sentence)
+        sentence_words = Preprocessing.clean_up_sentence(sentence)
         # bag of words
         bag = [0]*len(words)
         for s in sentence_words:
@@ -267,3 +274,49 @@ class Preprocessing(object):
                         print ("found in bag: %s" % w)
 
         return (np.array(bag))
+
+    def advFeat_and_BOW(sentence, words):
+        """clean up
+        """
+
+        #get min and max values from main data set
+        data_path = os.path.join("data/", "data_intents.json")
+        words, classes, documents = Preprocessing.parse_training_data(data_path)
+        advFeatDF = Preprocessing.additional_features(classes, documents)
+
+        userSentDF = pd.DataFrame()
+        userSentDF['patterns'] = [Preprocessing.clean_up_sentence(sentence)]
+
+        #Counts:do not include white space charcters
+        userSentDF['char_count'] = userSentDF['patterns'].apply(lambda x: sum([*map(len, x)]))
+        userSentDF['word_count'] = userSentDF['patterns'].apply(len)
+        userSentDF['word_density'] = userSentDF['char_count'] / (userSentDF['word_count'])
+        
+        #Punctuation count: number of punctuation marks in pattern
+        puncs_in_string = lambda x: sum([1 for _ in list(x) if _ in string.punctuation])
+        userSentDF['punctuation_count'] = userSentDF['patterns'].apply(lambda x: sum([*map(puncs_in_string, x)])) 
+
+        #Title Word Count: number of words starting with uppercase letter
+        userSentDF['title_word_count'] = userSentDF['patterns'].apply(lambda x: sum([*map(str.istitle, x)]))
+
+        #Uppercase word count: number of words in all upper case 
+        userSentDF['uppercase_word_count'] = userSentDF['patterns'].apply(lambda x: sum([*map(str.isupper, x)]))
+
+        userSentDF['noun_count'] = userSentDF['patterns'].apply(lambda x:Preprocessing._check_pos_tag(x, 'noun'))
+        userSentDF['verb_count'] = userSentDF['patterns'].apply(lambda x:Preprocessing._check_pos_tag(x, 'verb'))
+        userSentDF['adj_count']  = userSentDF['patterns'].apply(lambda x:Preprocessing._check_pos_tag(x, 'adj' ))
+        userSentDF['adv_count']  = userSentDF['patterns'].apply(lambda x:Preprocessing._check_pos_tag(x, 'adv' ))
+        userSentDF['pron_count'] = userSentDF['patterns'].apply(lambda x:Preprocessing._check_pos_tag(x, 'pron'))
+
+        advFeatures = ['char_count', 'word_count', 'word_density',
+       'punctuation_count', 'title_word_count', 'uppercase_word_count',
+       'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count']        
+
+        userArrayNorm = pd.DataFrame()
+        for feature in advFeatures:
+            userArrayNorm[feature] = (userSentDF[feature] - advFeatDF[feature].min())/(advFeatDF[feature].max() - advFeatDF[feature].min())
+
+        userBow = Preprocessing.bow(sentence, words)
+        #import ipdb; ipdb.set_trace()
+        userVec = list(userBow) + userArrayNorm.values.tolist()[0]
+        return userVec
