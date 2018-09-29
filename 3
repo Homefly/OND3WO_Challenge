@@ -39,7 +39,7 @@ class Preprocessing(object):
         :param flag: part of speach 
         :return: count of words in a specific part of speach
         """
- 
+
         #Parts of Speach
         pos_family = {
             'noun' : ['NN','NNS','NNP','NNPS'],
@@ -216,7 +216,6 @@ class Preprocessing(object):
     @classmethod
     def additional_features(cls, classes, documents):
         """ Calculates advanced feature values
-
         :param classes: list of parsed classes
         :param documents: list of parsed docs
         :return: Dataframe with: Word Count, 
@@ -247,12 +246,12 @@ class Preprocessing(object):
         #Uppercase word count: number of words in all upper case 
         trainDF['uppercase_word_count'] = trainDF['patterns'].apply(lambda x: sum([*map(str.isupper, x)]))
 
-        #Parts of Speech frequency
-        partsOfSpeech = ['noun', 'pron', 'verb', 'adj', 'adv']
-        partOfSpeechTitle = ['noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count']
-        for partOfSpeech, title in zip(partsOfSpeech, partOfSpeechTitle):
-            trainDF[title] = trainDF['patterns'].apply(lambda x:cls._check_pos_tag(x, partOfSpeech))
-
+        trainDF['noun_count'] = trainDF['patterns'].apply(lambda x:cls._check_pos_tag(x, 'noun'))
+        trainDF['verb_count'] = trainDF['patterns'].apply(lambda x:cls._check_pos_tag(x, 'verb'))
+        trainDF['adj_count']  = trainDF['patterns'].apply(lambda x:cls._check_pos_tag(x, 'adj' ))
+        trainDF['adv_count']  = trainDF['patterns'].apply(lambda x:cls._check_pos_tag(x, 'adv' ))
+        trainDF['pron_count'] = trainDF['patterns'].apply(lambda x:cls._check_pos_tag(x, 'pron'))
+        
         return trainDF
 
     def bow(sentence, words, show_details=False):
@@ -277,11 +276,7 @@ class Preprocessing(object):
         return (np.array(bag))
 
     def advFeat_and_BOW(sentence, words):
-        """Creates features from user input
-        
-        :param sentence: user input
-        :param words: Vocabulary for BowVec
-        :return userVec: feature vector created from user input
+        """clean up
         """
 
         #get min and max values from main data set
@@ -307,21 +302,24 @@ class Preprocessing(object):
         #Uppercase word count: number of words in all upper case 
         userSentDF['uppercase_word_count'] = userSentDF['patterns'].apply(lambda x: sum([*map(str.isupper, x)]))
 
-        #Parts of speech count
-        partsOfSpeech = ['noun', 'pron', 'verb', 'adj', 'adv']
-        partOfSpeechTitle = ['noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count']
-        for partOfSpeech, title in zip(partsOfSpeech, partOfSpeechTitle):
-            userSentDF[title] = userSentDF['patterns'].apply(lambda x:Preprocessing._check_pos_tag(x, partOfSpeech))
+        partsOfSpeech = ['noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count']
 
-        #Advanced Features generation
-        advFeatures = ['char_count', 'word_count', 'word_density', 'punctuation_count', 'title_word_count',
-         'uppercase_word_count', 'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count']        
+        for partOfSpeech
+        userSentDF['noun_count'] = userSentDF['patterns'].apply(lambda x:Preprocessing._check_pos_tag(x, 'noun'))
+        userSentDF['verb_count'] = userSentDF['patterns'].apply(lambda x:Preprocessing._check_pos_tag(x, 'verb'))
+        userSentDF['adj_count']  = userSentDF['patterns'].apply(lambda x:Preprocessing._check_pos_tag(x, 'adj' ))
+        userSentDF['adv_count']  = userSentDF['patterns'].apply(lambda x:Preprocessing._check_pos_tag(x, 'adv' ))
+        userSentDF['pron_count'] = userSentDF['patterns'].apply(lambda x:Preprocessing._check_pos_tag(x, 'pron'))
+
+        advFeatures = ['char_count', 'word_count', 'word_density',
+       'punctuation_count', 'title_word_count', 'uppercase_word_count',
+       'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count']        
 
         userArrayNorm = pd.DataFrame()
         for feature in advFeatures:
             userArrayNorm[feature] = (userSentDF[feature] - advFeatDF[feature].min())/(advFeatDF[feature].max() - advFeatDF[feature].min())
 
         userBow = Preprocessing.bow(sentence, words)
+        #import ipdb; ipdb.set_trace()
         userVec = list(userBow) + userArrayNorm.values.tolist()[0]
-
         return userVec
