@@ -4,7 +4,7 @@
 import numpy as np
 
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, LSTM, Bidirectional, Conv1D, Flatten
+from keras.layers import Dense, Dropout, LSTM, Bidirectional
 from keras import optimizers
 from keras.wrappers.scikit_learn import KerasClassifier
 from sklearn.ensemble import BaggingClassifier, RandomForestClassifier, \
@@ -36,7 +36,7 @@ def create_ffNN(lr=0.005, decay=0.001):
     model.compile(loss="categorical_crossentropy",
                   optimizer=adam,
                   metrics=["accuracy"])
-    print(model.summary())
+    # print(model.summary())
 
     return model
 
@@ -49,11 +49,9 @@ def create_CNN(lr=0.005, decay=0.001, layerNum = 1):
     """
     model = Sequential()
 
-    model.add(Conv1D(filters = 10, kernel_size = 10, input_shape=(modelInputWidth, 1), padding = 'same', dilation_rate=1, use_bias = True))
-    model.add(Flatten())
-
+    model.add(keras.layers.Conv1D(input_dim = modelInputWidth, padding = 'same', use_bias=True))
     for _ in range(layerNum):
-        model.add(Dense(50, activation="relu"))
+        model.add(Dense(50, activation="relu", input_dim=modelInputWidth))
         model.add(Dropout(0.2))
     model.add(Dense(9, activation="softmax"))
 
@@ -135,9 +133,9 @@ def convolutional_models():
     }
 
     params = {
-        "CNN": {"epochs": [80, 120],
+        "CNN": {"epochs": [35, 40, 45, 80],
                  "lr": [0.005, 0.01],
-                 "decay": [0, 0.001],
+                 "decay": [0, 0.001]
                  "layerNum":[1, 2, 3, 4]}
     }
 

@@ -11,7 +11,7 @@ import pandas as pd
 from utils.tensorboard_utils import make_callbacks
 from utils.evaluation_utils import eval_clf
 
-from models import feedforward_models, modelInputWidth
+from models import feedforward_models, modelInputWidth, convolutional_models
 
 
 def evaluate_models(trainset, testset, model_names, trained_models):
@@ -28,8 +28,6 @@ def evaluate_models(trainset, testset, model_names, trained_models):
     eval_results = {}
 
     # Input reshaping
-    #X_train_rec = X_train.reshape(114, 1, 105)
-    #X_test_rec = X_test.reshape(13, 1, 105)
     X_train_rec = X_train.reshape(114, 1, modelInputWidth)
     X_test_rec = X_test.reshape(13, 1, modelInputWidth)
     y_train_ensemble = np.argmax(y_train, axis=1)
@@ -132,3 +130,16 @@ def explore_models(trainset):
     ff_NNs.fit(X_train, y_train, cv=5, n_jobs=-1)
     summary = ff_NNs.score_summary(sort_by="mean_score")
     summary.to_csv("model/ffNNs_summary.csv")
+
+    # CNN
+    models, params = convolutional_models() 
+    c_NNs = ModelExplorer(models, params)
+    X_train = np.expand_dims(X_train, axis=2)
+    c_NNs.fit(X_train, y_train, cv=5, n_jobs=-1)
+    summary = c_NNs.score_summary(sort_by="mean_score")
+    summary.to_csv("model/cNNs_summary.csv")
+
+    #LSTM
+
+
+    #DNN
