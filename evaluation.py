@@ -11,7 +11,8 @@ import pandas as pd
 from utils.tensorboard_utils import make_callbacks
 from utils.evaluation_utils import eval_clf
 
-from models import feedforward_models, modelInputWidth, convolutional_models
+from models import feedforward_models, modelInputWidth,\
+ convolutional_models, recurrent_models
 
 
 def evaluate_models(trainset, testset, model_names, trained_models):
@@ -72,6 +73,7 @@ class ModelExplorer:
         self.grid_searches = {}
 
     def fit(self, X, y, cv=3, n_jobs=1, verbose=1, scoring=None, refit=False):
+        #import ipdb; ipdb.set_trace()
         for key in self.keys:
             print("Running GridSearchCV for %s." % key)
             model = self.models[key]
@@ -79,6 +81,7 @@ class ModelExplorer:
             gs = GridSearchCV(model, params, cv=cv, n_jobs=n_jobs,
                               verbose=verbose, scoring=scoring, refit=refit,
                               return_train_score=True)
+            #import ipdb; ipdb.set_trace()
             gs.fit(X, y)
             self.grid_searches[key] = gs
 
@@ -124,22 +127,35 @@ def explore_models(trainset):
     """
     (X_train, y_train) = trainset
 
-    # ffNN
+    #ffNN
+    #models, params = feedforward_models()
+    #ff_NNs = ModelExplorer(models, params)
+    #ff_NNs.fit(X_train, y_train, cv=5, n_jobs=-1)
+    #summary = ff_NNs.score_summary(sort_by="mean_score")
+    #summary.to_csv("model/ffNNs_summary.csv")
+
+    ## CNN
+    #models, params = convolutional_models() 
+    #c_NNs = ModelExplorer(models, params)
+    #X_train = np.expand_dims(X_train, axis=2)
+    #c_NNs.fit(X_train, y_train, cv=5, n_jobs=-1)
+    #summary = c_NNs.score_summary(sort_by="mean_score")
+    #summary.to_csv("model/cNNs_summary.csv")
+
+    #LSTM
+    models, params = recurrent_models()
+    lstm_NNs = ModelExplorer(models, params)
+    #import ipdb; ipdb.set_trace()
+    X_train = np.expand_dims(X_train, axis=1)
+    lstm_NNs.fit(X_train, y_train, cv=5, n_jobs=1)
+    summary = lstm_NNs.score_summary(sort_by="mean_score")
+    summary.to_csv("model/lstmNNs_summary.csv")
+
+
+    #DNN
     models, params = feedforward_models()
     ff_NNs = ModelExplorer(models, params)
     ff_NNs.fit(X_train, y_train, cv=5, n_jobs=-1)
     summary = ff_NNs.score_summary(sort_by="mean_score")
     summary.to_csv("model/ffNNs_summary.csv")
 
-    # CNN
-    models, params = convolutional_models() 
-    c_NNs = ModelExplorer(models, params)
-    X_train = np.expand_dims(X_train, axis=2)
-    c_NNs.fit(X_train, y_train, cv=5, n_jobs=-1)
-    summary = c_NNs.score_summary(sort_by="mean_score")
-    summary.to_csv("model/cNNs_summary.csv")
-
-    #LSTM
-
-
-    #DNN

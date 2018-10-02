@@ -17,7 +17,7 @@ from mlxtend.classifier import StackingCVClassifier
 #from evaluation import *
 modelInputWidth = 116
 
-def create_ffNN(lr=0.005, decay=0.001):
+def create_ffNN(lr=0.005, decay=0.001, layerNum=1):
     """ Create Feed-Forward NN, from template
 
     :param lr: learning rate for adam optimizer
@@ -27,8 +27,9 @@ def create_ffNN(lr=0.005, decay=0.001):
     model = Sequential()
     model.add(Dense(100, activation="relu", input_dim=modelInputWidth))
     model.add(Dropout(0.2))
-    model.add(Dense(50, activation="relu"))
-    model.add(Dropout(0.2))
+    for _ in range(layerNum):
+        model.add(Dense(50, activation="relu"))
+        model.add(Dropout(0.2))
     model.add(Dense(9, activation="softmax"))
 
     # metrics
@@ -66,7 +67,7 @@ def create_CNN(lr=0.005, decay=0.001, layerNum = 1):
 
     return model
 
-def create_LSTM(optimizer="adam"):
+def create_LSTM(lr=0.005, decay=0.001, optimizerType="adam"):
     """ Create simple LSTM model
 
     :param optimizer: keras optimizer
@@ -77,11 +78,14 @@ def create_LSTM(optimizer="adam"):
     model.add(Dropout(0.1))
     model.add(Dense(9, activation="softmax"))
 
-    # metrics
+    # metrics 
+    if optimizerType == "adam":
+        optimizer = optimizers.Adam(lr=lr, decay=decay)
+
     model.compile(loss="categorical_crossentropy",
                   optimizer=optimizer,
                   metrics=["accuracy"])
-    # print(model.summary())
+    print(model.summary())
 
     return model
 
@@ -101,7 +105,7 @@ def create_biLSTM(optimizer="adam"):
     model.compile(loss="categorical_crossentropy",
                   optimizer=optimizer,
                   metrics=["accuracy"])
-    # print(model.summary())
+    print(model.summary())
 
     return model
 
@@ -119,7 +123,8 @@ def feedforward_models():
     params = {
         "ffNN": {"epochs": [35, 40, 45, 80],
                  "lr": [0.005, 0.01],
-                 "decay": [0, 0.001]}
+                 "decay": [0, 0.001],
+                 "layerNum":[1, 2, 3, 4]}
     }
 
     return (models, params)
@@ -155,11 +160,16 @@ def recurrent_models():
                                   verbose=1, validation_split=0.2)
     }
 
+    #params = {
+    #    "LSTM": {"epochs": [120, 150, 180],
+    #             "optimizer": ["RMSProp", "adam"]},
+    #    "biLSTM": {"epochs": [100, 150, 180],
+    #               "optimizer": ["RMSProp", "adam"]}
+    #}
+    
     params = {
-        "LSTM": {"epochs": [120, 150, 180],
-                 "optimizer": ["RMSProp", "adam"]},
-        "biLSTM": {"epochs": [100, 150, 180],
-                   "optimizer": ["RMSProp", "adam"]}
+        "LSTM": {"epochs": [120, 150, 180]},
+        "biLSTM": {"epochs": [100, 150, 180]}
     }
 
     return (models, params)
